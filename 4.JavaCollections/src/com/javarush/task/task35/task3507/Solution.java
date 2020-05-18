@@ -3,6 +3,7 @@ package com.javarush.task.task35.task3507;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -51,10 +52,11 @@ public class Solution {
                 .map(path -> {
                     Class clazz = null;
                     try {
-                        URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{directory.toURI().toURL()});
+                        MyClassLoader myClassLoader = new MyClassLoader(path);
 
-                        clazz = urlClassLoader.loadClass(path.getFileName().toString().replaceAll(".class", ""));
-                    } catch (MalformedURLException | ClassNotFoundException e) {
+                        clazz = myClassLoader.findClass(null);
+
+                    } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
 
@@ -62,7 +64,8 @@ public class Solution {
                 })
                 .filter(aClass -> {
                     try {
-                        if (aClass.getDeclaredConstructor() != null && Arrays.asList(aClass.getInterfaces()).contains(Animal.class)) return true;
+                        if (aClass.getDeclaredConstructor() != null && Modifier.isPublic(aClass.getDeclaredConstructor().getModifiers()) &&
+                        Arrays.asList(aClass.getInterfaces()).contains(Animal.class)) return true;
                     } catch (NoSuchMethodException e) {
                         e.printStackTrace();
                     }
